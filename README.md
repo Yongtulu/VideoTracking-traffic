@@ -1,25 +1,25 @@
-# Traffic Tracker — 车辆追踪 + 越线计数
+# Traffic Tracker — Vehicle Tracking + Line Crossing Counter
 
-基于 YOLOv8 + ByteTrack 的实时车辆检测追踪系统，支持虚拟计数线越线统计与方向判断。
+Real-time vehicle detection and tracking system based on YOLOv8 + ByteTrack, with virtual counting line support for IN/OUT direction statistics.
 
 ## Demo
 
-![实际运行效果](demo.png)
+![Demo](demo.png)
 
-*YOLOv8 检测 + ByteTrack 追踪，红线为虚拟计数线，左上角实时显示 IN / OUT 计数。*
+*YOLOv8 detection + ByteTrack tracking. The red line is the virtual counting line; IN/OUT counts are displayed in the top-left corner in real time.*
 
-## 功能
+## Features
 
-- 多目标车辆检测（car / bus / truck / motorcycle）
-- ByteTrack 跨帧 ID 追踪，遮挡后仍能保持同一 ID
-- 虚拟计数线越线检测，输出 IN / OUT 方向计数
-- 实时可视化：边框、ID、越线高亮、计数面板
-- 支持视频文件、摄像头输入，可选保存输出视频
+- Multi-class vehicle detection (car / bus / truck / motorcycle)
+- ByteTrack cross-frame ID tracking — maintains the same ID through occlusions
+- Virtual counting line with crossing detection and IN/OUT direction judgment
+- Real-time visualization: bounding boxes, track IDs, crossing highlights, count panel
+- Supports video files and webcam input; optional output video saving
 
-## 系统架构
+## Architecture
 
 ```
-视频帧 → YOLOv8检测 → ByteTrack追踪 → LineCounter越线判断 → 可视化输出
+Video Frame → YOLOv8 Detection → ByteTrack Tracking → LineCounter → Visualization
 ```
 
 <svg viewBox="0 0 780 420" xmlns="http://www.w3.org/2000/svg" font-family="ui-monospace,monospace" font-size="13">
@@ -29,33 +29,28 @@
     </marker>
   </defs>
 
-  <!-- Video Source -->
   <rect x="20" y="30" width="130" height="54" rx="8" fill="#1e1e2e" stroke="#444" stroke-width="1.5"/>
   <text x="85" y="52" text-anchor="middle" fill="#cdd6f4" font-weight="600">Video Source</text>
   <text x="85" y="72" text-anchor="middle" fill="#888" font-size="11">mp4 / webcam / DETRAC</text>
 
   <line x1="150" y1="57" x2="188" y2="57" stroke="#888" stroke-width="1.5" marker-end="url(#arr)"/>
 
-  <!-- YOLOv8 -->
   <rect x="190" y="30" width="140" height="54" rx="8" fill="#1e1e2e" stroke="#89b4fa" stroke-width="1.5"/>
   <text x="260" y="52" text-anchor="middle" fill="#89b4fa" font-weight="600">YOLOv8</text>
   <text x="260" y="72" text-anchor="middle" fill="#888" font-size="11">classes: car/bus/truck/moto</text>
 
   <line x1="330" y1="57" x2="368" y2="57" stroke="#888" stroke-width="1.5" marker-end="url(#arr)"/>
 
-  <!-- ByteTrack -->
   <rect x="370" y="30" width="140" height="54" rx="8" fill="#1e1e2e" stroke="#a6e3a1" stroke-width="1.5"/>
   <text x="440" y="52" text-anchor="middle" fill="#a6e3a1" font-weight="600">ByteTrack</text>
   <text x="440" y="72" text-anchor="middle" fill="#888" font-size="11">persist ID across frames</text>
 
   <line x1="510" y1="57" x2="548" y2="57" stroke="#888" stroke-width="1.5" marker-end="url(#arr)"/>
 
-  <!-- LineCounter -->
   <rect x="550" y="30" width="140" height="54" rx="8" fill="#1e1e2e" stroke="#f38ba8" stroke-width="1.5"/>
   <text x="620" y="52" text-anchor="middle" fill="#f38ba8" font-weight="600">LineCounter</text>
   <text x="620" y="72" text-anchor="middle" fill="#888" font-size="11">cross product side test</text>
 
-  <!-- LineCounter detail -->
   <rect x="440" y="140" width="280" height="130" rx="8" fill="#1e1e2e" stroke="#f38ba8" stroke-width="1" stroke-dasharray="5,3"/>
   <text x="580" y="162" text-anchor="middle" fill="#f38ba8" font-weight="600" font-size="12">line_counter.py  logic</text>
   <text x="456" y="185" fill="#888" font-size="11">1. compute cross(line_vec, obj→line_start)</text>
@@ -66,7 +61,6 @@
 
   <line x1="620" y1="84" x2="620" y2="138" stroke="#f38ba8" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#arr)"/>
 
-  <!-- Visualizer -->
   <rect x="20" y="200" width="340" height="130" rx="8" fill="#1e1e2e" stroke="#cba6f7" stroke-width="1.5"/>
   <text x="190" y="222" text-anchor="middle" fill="#cba6f7" font-weight="600">Visualizer  (main.py)</text>
   <rect x="40" y="235" width="70" height="42" rx="4" fill="none" stroke="#a6e3a1" stroke-width="1.5"/>
@@ -85,13 +79,11 @@
   <line x1="440" y1="160" x2="200" y2="160" stroke="#888" stroke-width="1.2"/>
   <line x1="200" y1="160" x2="200" y2="198" stroke="#888" stroke-width="1.2" marker-end="url(#arr)"/>
 
-  <!-- Output -->
   <rect x="20" y="360" width="150" height="44" rx="8" fill="#1e1e2e" stroke="#444" stroke-width="1.5"/>
   <text x="95" y="380" text-anchor="middle" fill="#cdd6f4" font-size="12">output.mp4</text>
   <text x="95" y="396" text-anchor="middle" fill="#888" font-size="10">+ terminal count log</text>
   <line x1="95" y1="330" x2="95" y2="358" stroke="#888" stroke-width="1.2" marker-end="url(#arr)"/>
 
-  <!-- Files legend -->
   <rect x="440" y="300" width="320" height="110" rx="8" fill="#1e1e2e" stroke="#444" stroke-width="1"/>
   <text x="600" y="320" text-anchor="middle" fill="#cdd6f4" font-weight="600" font-size="12">Files</text>
   <text x="456" y="340" fill="#888" font-size="11">config.py       — line coords, classes, colors</text>
@@ -100,44 +92,44 @@
   <text x="456" y="394" fill="#888" font-size="11">download_sample.py — fetch demo video</text>
 </svg>
 
-## 目录结构
+## Project Structure
 
 ```
 traffic_tracker/
-├── config.py           # 所有可调参数（模型、检测类别、计数线坐标、颜色）
-├── line_counter.py     # 越线计数核心逻辑（叉积判断方向）
-├── main.py             # 主推理循环 + 可视化
-├── download_sample.py  # 下载演示视频
+├── config.py           # All tunable parameters (model, classes, line coords, colors)
+├── line_counter.py     # Line crossing logic (cross product side test)
+├── main.py             # Main inference loop + visualization
+├── download_sample.py  # Download a sample traffic video
 └── requirements.txt
 ```
 
-## 安装
+## Installation
 
 ```bash
 pip install -r requirements.txt
-pip install yt-dlp   # 仅下载示例视频时需要
+pip install yt-dlp   # only needed for downloading the sample video
 ```
 
-## 使用
+## Usage
 
 ```bash
-# 下载示例视频（约60秒路口片段）
+# Download a sample video (~60 seconds of intersection footage)
 python download_sample.py
 
-# 运行追踪，--line 指定计数线 x1,y1,x2,y2
+# Run the tracker; --line specifies the counting line as x1,y1,x2,y2
 python main.py --source sample_traffic.mp4 --line 0,360,1280,360
 
-# 保存输出视频
+# Save output video
 python main.py --source sample_traffic.mp4 --line 0,360,1280,360 --output result.mp4
 
-# 使用摄像头（0 为默认摄像头）
+# Use webcam (0 = default camera)
 python main.py --source 0 --line 0,360,1280,360
 
-# 无 GUI 模式（服务器环境）
+# Headless mode (no GUI window)
 python main.py --source video.mp4 --no-display --output result.mp4
 ```
 
-按 `q` 退出，终端会打印最终统计：
+Press `q` to quit. Final counts are printed to the terminal:
 
 ```
 [DONE] Processed 1800 frames
@@ -145,30 +137,30 @@ python main.py --source video.mp4 --no-display --output result.mp4
        Total OUT: 19
 ```
 
-## 参数调整
+## Configuration
 
-所有参数在 `config.py` 中集中管理：
+All parameters are in `config.py`:
 
-| 参数 | 默认值 | 说明 |
-|------|--------|------|
-| `MODEL` | `yolov8n.pt` | 换成 `yolov8s.pt` 精度更高但更慢 |
-| `VEHICLE_CLASSES` | `[2,3,5,7]` | COCO ID：car/motorcycle/bus/truck |
-| `DEFAULT_LINE` | `(50,360,1230,360)` | 计数线像素坐标，可被 `--line` 覆盖 |
-| `TRACK_CONF` | `0.3` | 检测置信度阈值 |
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `MODEL` | `yolov8n.pt` | Swap to `yolov8s.pt` for higher accuracy |
+| `VEHICLE_CLASSES` | `[2,3,5,7]` | COCO IDs: car / motorcycle / bus / truck |
+| `DEFAULT_LINE` | `(50,360,1230,360)` | Counting line in pixels; overridden by `--line` |
+| `TRACK_CONF` | `0.3` | Minimum detection confidence for tracking |
 
-## 越线计数原理
+## How Line Crossing Works
 
-以计数线向量 **L** 和"线起点→目标质心"向量 **P** 做叉积，正负号表示目标在线的哪一侧。相邻两帧符号翻转即判定为一次越线，方向由翻转前的符号决定：
+The cross product of the line vector **L** and the vector from the line start to the object centroid **P** determines which side the object is on. A sign flip between frames registers one crossing event; the direction is determined by which side the object came from:
 
 ```
 side = (lx2-lx1)*(cy-ly1) - (ly2-ly1)*(cx-lx1)
 
-+1 → -1 : IN  （从上方穿越到下方）
--1 → +1 : OUT （从下方穿越到上方）
++1 → -1 : IN  (crossing downward)
+-1 → +1 : OUT (crossing upward)
 ```
 
-叉积法天然防止同一辆车在线附近来回触发重复计数。
+This approach naturally prevents double-counting when a vehicle lingers near the line.
 
-## 数据集
+## Dataset
 
-支持任意交通视频。如需标注数据集，可使用 [UA-DETRAC](https://detrac-db.rit.albany.edu/)（需注册），包含高速公路和路口场景的车辆检测追踪标注。
+Any traffic video works as input. For annotated benchmark data, see [UA-DETRAC](https://detrac-db.rit.albany.edu/) (registration required), which provides labeled vehicle detection and tracking sequences for both highway and intersection scenarios.
